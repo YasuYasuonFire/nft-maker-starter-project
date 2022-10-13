@@ -149,10 +149,10 @@ const NftUploader = () => {
         <input type="file" name="myfile" accept=".jpg , .jpeg , .png"/>
         
         <p>Title</p>
-        <input type="text" name="title"></input>
+        <input type="text" name="title" maxlength="20"></input>
         
         <p>description</p>
-        <input type="text" name="description" size="30"></input>
+        <input type="text" name="description" maxlength="50"></input>
 
         <p>Mint!</p>
         <input type="submit"/>
