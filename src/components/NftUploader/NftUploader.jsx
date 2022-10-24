@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import "./NftUploader.css";
 import Web3Mint from "../../utils/Web3Mint.json";
 import { Web3Storage } from 'web3.storage';
-const API_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDMxZjlkYzFiMDk5YkZmMDE5NjIwM2NmNzJiNzAwNzllY0ZDOWNCMGMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjU1NDI5NjA5ODYsIm5hbWUiOiJGb3JVcGxvYWRlciJ9.IpfQWx3VJzRy-qyfkclj6S081jRt72iB3Xz5dBOMUrQ";
+const API_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDMxZjlkYzFiMDk5YkZmMDE5NjIwM2NmNzJiNzAwNzllY0ZDOWNCMGMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjY0OTU2ODk1MjQsIm5hbWUiOiJ0ZXN0In0.pzP-JzijNa2HEb_lFy1uPn_Fi64Frdips-kGjFlhzfY";
 
 const NftUploader = () => {
   /*
@@ -76,10 +76,10 @@ const NftUploader = () => {
         );
         console.log("Going to pop wallet now to pay gas...");
         let nftTxn = await connectedContract.mintIpfsNFT(title,description,ipfs);
-        console.log("Mining...please wait.");
+        console.log("Minting...please wait.");
         await nftTxn.wait();
         console.log(
-          `Mined, see transaction: https://goerli.etherscan.io/tx/${nftTxn.hash}`
+          `Minted!!, see transaction: https://goerli.etherscan.io/tx/${nftTxn.hash}`
         );
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -94,27 +94,52 @@ const NftUploader = () => {
         Connect to Wallet
       </button>
     );
+  const sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+  }
+
   // NftUploader.jsx
   const imageToNFT = async (e) => {
     e.preventDefault()
     const client = new Web3Storage({ token: API_KEY })
-    const image = e.target.myfile
-    //console.log(image)
     const title = e.target.title.value
     const description = e.target.description.value
     console.log("title:",title)
     console.log("description:",description)
+    
+    //descriptionの文字列を入力として、SDで画像生成して結果を得る
+    const response = await fetch('https://flasktest-gold.vercel.app/stableDiffusion/' + description)
+    const myBlob = await response.blob()
+    //blobに属性追加
+    myBlob.name = 'image.jpeg';
+    myBlob.lastModified = new Date();
+    
+    //Blob⇒Fileに変換
+    const myFile = new File([myBlob], 'image.jpeg', {
+      type: myBlob.type,
+  });
+
+    //FileListを新規作成
+    const dt = new DataTransfer();
+    dt.items.add(myFile);
+    
     console.log("uploding to ipfs. Please wait..")
-    const rootCid = await client.put(image.files, {
-        name: 'experiment',
+    //const rootCid = await client.put(image.files, {
+    const rootCid = await client.put(dt.files, {
+        name: title,
         maxRetries: 3
     })
-    const res = await client.get(rootCid) // Web3Response
-    const files = await res.files() // Web3File[]
-    for (const file of files) {
-      console.log("file.cid:",file.cid)
-      askContractToMintNft(title, description, file.cid)
-    }
+    
+    console.log("rootCid: ", rootCid)
+
+    // rootCID+ファイル名でアクセスするよう変更
+    const imageURI = rootCid + '/' + 'image.jpeg'
+    console.log("title: ",title)
+    console.log("description: ",description)
+    console.log("imageURI: ",imageURI)
+
+    askContractToMintNft(title, description, imageURI)
+  
   }
 
 
@@ -145,13 +170,10 @@ const NftUploader = () => {
         <input className="nftUploadInput" multiple name="imageURL" type="file" accept=".jpg , .jpeg , .png"  onChange={imageToNFT}/>
       </div>*/}
       <form onSubmit = {imageToNFT}>
-        <p>Choose a pic file</p>
-        <input type="file" name="myfile" accept=".jpg , .jpeg , .png"/>
-        
         <p>Title</p>
         <input type="text" name="title" maxlength="20"></input>
         
-        <p>description</p>
+        <p>description (input for Stable Diffusion)</p>
         <input type="text" name="description" maxlength="50"></input>
 
         <p>Mint!</p>
