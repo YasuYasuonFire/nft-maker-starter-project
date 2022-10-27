@@ -61,9 +61,9 @@ const NftUploader = () => {
     }
   };
   
-  const askContractToMintNft = async (title, description, ipfs) => {
+  const askContractToMintNft = async (ipfs) => {
     const CONTRACT_ADDRESS =
-      "0x70391E2abeE9999611a0B957c2470Aa9042749e2";
+      "0x05497AB6cA031E09ebE9187619cdBDB25E0E4eB6";
     try {
       const { ethereum } = window;
       if (ethereum) {
@@ -75,11 +75,12 @@ const NftUploader = () => {
           signer
         );
         console.log("Going to pop wallet now to pay gas...");
-        let nftTxn = await connectedContract.mintIpfsNFT(title,description,ipfs);
+        let nftTxn = await connectedContract.mintIpfsNFT(ipfs);
         console.log("Minting...please wait.");
         await nftTxn.wait();
         console.log(
-          `Minted!!, see transaction: https://goerli.etherscan.io/tx/${nftTxn.hash}`
+          //`Minted!!, see transaction: https://goerli.etherscan.io/tx/${nftTxn.hash}`
+          `Minted!!, see transaction: https://mumbai.polygonscan.com/tx/${nftTxn.hash}`
         );
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -94,10 +95,7 @@ const NftUploader = () => {
         Connect to Wallet
       </button>
     );
-  const sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-  }
-
+  
   // NftUploader.jsx
   const imageToNFT = async (e) => {
     e.preventDefault()
@@ -123,7 +121,7 @@ const NftUploader = () => {
     const dt = new DataTransfer();
     dt.items.add(myFile);
     
-    console.log("uploding to ipfs. Please wait..")
+    console.log("uploding image to ipfs. Please wait..")
     //const rootCid = await client.put(image.files, {
     const rootCid = await client.put(dt.files, {
         name: title,
@@ -133,12 +131,53 @@ const NftUploader = () => {
     console.log("rootCid: ", rootCid)
 
     // rootCID+ファイル名でアクセスするよう変更
-    const imageURI = rootCid + '/' + 'image.jpeg'
+    const imageURI = "https://" + rootCid + ".ipfs.w3s.link" + '/' + 'image.jpeg'
     console.log("title: ",title)
     console.log("description: ",description)
     console.log("imageURI: ",imageURI)
 
-    askContractToMintNft(title, description, imageURI)
+
+    //メタデータとなるjsonファイルを作成し、IPFSへアップロードする
+    let metadata = {
+      "name":title,
+      "description":description,
+      "image":imageURI,
+      "attributes": [
+          {
+            "trait_type": "BACKGROUND",
+            "value": "Sankuzusi kurenai"
+          },
+          {
+            "trait_type": "WING",
+            "value": "Scarlet macaw"
+          }
+      ]
+    }
+    //Object⇒jsonに変換
+    let metadata_json = JSON.stringify(metadata)
+    //json⇒Fileに変換
+    const myjsonFile = new File([metadata_json], 'meta.json', {
+      type: metadata.type,
+  });
+
+    //FileListを新規作成
+    const dt2 = new DataTransfer();
+    dt2.items.add(myjsonFile);
+    
+    console.log("uploding metadata to ipfs. Please wait..")
+    //const rootCid = await client.put(image.files, {
+    const rootCid_meta = await client.put(dt2.files, {
+        name: title,
+        maxRetries: 3
+    })
+    
+    console.log("rootCid: ", rootCid_meta)
+
+    // rootCID+ファイル名でアクセスするよう変更
+    const metadataURI = "https://" + rootCid_meta + '.ipfs.w3s.link' + '/' + 'meta.json'
+
+    console.log("metadataURI: " + metadataURI)
+    askContractToMintNft(metadataURI)
   
   }
 
@@ -171,10 +210,10 @@ const NftUploader = () => {
       </div>*/}
       <form onSubmit = {imageToNFT}>
         <p>Title</p>
-        <input type="text" name="title" maxlength="20"></input>
+        <input type="text" name="title"></input>
         
         <p>description (input for Stable Diffusion)</p>
-        <input type="text" name="description" maxlength="50"></input>
+        <input type="text" name="description"></input>
 
         <p>Mint!</p>
         <input type="submit"/>
