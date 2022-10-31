@@ -154,9 +154,9 @@ const NftUploader = () => {
     console.log("description:",description)
     
     //日本語のdescriptionを翻訳
-    //const description_en = translate(description)
+    const description_en = translate(description)
     //for test on localhost
-    const description_en = "test"
+    //const description_en = "test"
     console.log("translate description")
     if(description_en === ""){//翻訳APIでエラーの場合
       console.log("EROOR: translate failure")
