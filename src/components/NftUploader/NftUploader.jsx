@@ -121,7 +121,15 @@ const NftUploader = () => {
     e.preventDefault()
     
     const client = new Web3Storage({ token: API_KEY })
-    const title = e.target.title.value
+    //const title = e.target.title.value
+    const hiduke=new Date(); 
+
+    //年・月・日・曜日を取得し、NFTのタイトルに設定
+    const year = hiduke.getFullYear();
+    const month = hiduke.getMonth()+1;
+    const week = hiduke.getDate();
+    const title = year + '/' + month + '/' + week
+
     const description = e.target.description.value
     console.log("title:",title)
     console.log("description:",description)
@@ -229,18 +237,15 @@ const NftUploader = () => {
       {currentAccount === "" ? (
         renderNotConnectedContainer()
       ) : (
-        <p>If you choose image, you can mint your NFT</p>
+        <p>you can mint "Your Emotion" NFT</p>
       )}
       <div className="title">
         <h2>NFT Minter</h2>
       </div>
   
       <form onSubmit = {imageToNFT}>
-        <p>Title</p>
-        <input type="text" name="title"></input>
-        
-        <p>description (input for Stable Diffusion)</p>
-        <input type="text" name="description"></input>
+        <p>Write down your emotion.</p>
+        <textarea type="text" name="description" cols='30' rows='10' placeholder="English OK 日本語もOK"></textarea>
 
         <p>Mint!</p>
         <input type="submit"/>
