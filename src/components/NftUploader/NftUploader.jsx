@@ -1,11 +1,14 @@
 import { ethers } from "ethers";
-import { Button } from "@mui/material";
+//import { Button } from "@mui/material";
 import React from "react";
 import { useEffect, useState } from 'react';
 //import ImageLogo from "./image.svg";
 import "./NftUploader.css";
 import Web3Mint from "../../utils/Web3Mint.json";
 import { Web3Storage } from 'web3.storage';
+import Loadingindicator from "./../LoadingIndicator/LoadingIndicator"; 
+
+
 const API_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDMxZjlkYzFiMDk5YkZmMDE5NjIwM2NmNzJiNzAwNzllY0ZDOWNCMGMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjY0OTU2ODk1MjQsIm5hbWUiOiJ0ZXN0In0.pzP-JzijNa2HEb_lFy1uPn_Fi64Frdips-kGjFlhzfY";
 
 const NftUploader = () => {
@@ -13,6 +16,8 @@ const NftUploader = () => {
    * ユーザーのウォレットアドレスを格納するために使用する状態変数を定義します。
    */
   const [currentAccount, setCurrentAccount] = useState("");
+  const [loading, setLoading] = useState(false);
+
   /*この段階でcurrentAccountの中身は空*/
   console.log("currentAccount: ", currentAccount);
   const checkIfWalletIsConnected = async() => {
@@ -28,6 +33,15 @@ const NftUploader = () => {
     }
 
     const accounts = await ethereum.request({ method: "eth_accounts" });
+
+    //ウォレットのネットワークを確認し、異なればalert
+    let chainId = await ethereum.request({ method: "eth_chainId" });
+    console.log("Connected to chain " + chainId);
+    // 0x5 は　Goerli の ID です。
+    const MumbaiChainId = "0x13881";
+    if (chainId !== MumbaiChainId) {
+      alert("Please change to Mumbai Test Network!");
+    }
 
     if (accounts.length !== 0) {
       const account = accounts[0];
@@ -88,6 +102,8 @@ const NftUploader = () => {
     } catch (error) {
       console.log(error);
     }
+    //loadingフラグをオフにする
+    setLoading(false);
   };
 
   const renderNotConnectedContainer = () => (
@@ -120,6 +136,9 @@ const NftUploader = () => {
   const imageToNFT = async (e) => {
     e.preventDefault()
     
+    //loadingフラグをオン
+    setLoading(true);
+
     const client = new Web3Storage({ token: API_KEY })
     //const title = e.target.title.value
     const hiduke=new Date(); 
@@ -135,11 +154,11 @@ const NftUploader = () => {
     console.log("description:",description)
     
     //日本語のdescriptionを翻訳
-    const description_en = translate(description)
+    //const description_en = translate(description)
     //for test on localhost
-    //const description_en = "test"
+    const description_en = "test"
     console.log("translate description")
-    if(description_en == ""){//翻訳APIでエラーの場合
+    if(description_en === ""){//翻訳APIでエラーの場合
       console.log("EROOR: translate failure")
       return 1
     }
@@ -244,23 +263,32 @@ const NftUploader = () => {
   
   return (
     <div className="outerBox">
-      {currentAccount === "" ? (
-        renderNotConnectedContainer()
-      ) : (
-        <p>you can mint "Your Emotion" NFT</p>
-      )}
-      <div className="title">
-        <h2>NFT Minter</h2>
-      </div>
-  
-      <form onSubmit = {imageToNFT}>
-        <p>Write down your emotion.</p>
-        <textarea type="text" name="description" cols='30' rows='10' placeholder="English OK 日本語もOK"></textarea>
+      { !loading ? (
+          <>
+        {currentAccount === "" ? (
+          renderNotConnectedContainer()
+        ) : (
+          <p>you can mint "Your Emotion" NFT</p>
+        )}
+        <div className="title">
+          <h2>NFT Minter</h2>
+        </div>
+    
+        <form onSubmit = {imageToNFT}>
+          <p>Write down your emotion.</p>
+          <textarea type="text" name="description" cols='30' rows='10' placeholder="English OK 日本語もOK"></textarea>
 
-        <p>Mint!</p>
-        <input type="submit"/>
-      </form>
-    </div>
+          <p>Mint!</p>
+          <input type="submit"/>
+        </form>
+          </>
+    ) : (
+    <>
+      <Loadingindicator/>
+      <h3>Please wait・・・・・</h3>
+      </>
+      )}
+  </div>
   );
 };
 
