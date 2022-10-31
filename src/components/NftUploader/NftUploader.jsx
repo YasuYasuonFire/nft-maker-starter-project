@@ -94,19 +94,52 @@ const NftUploader = () => {
       <button onClick={connectWallet} className="cta-button connect-wallet-button">
         Connect to Wallet
       </button>
-    );
+  );
+
+  const translate = (description) => {
+    const text = description
+    const fromLang = 'ja'
+    const toLang = 'en'
+    const apiKey = 'AIzaSyCn_yaZmmrbG-6dbjc2r1eONUpw3kNGdH0'
+    // 翻訳
+    const URL = "https://translation.googleapis.com/language/translate/v2?key="+apiKey+"&q="+encodeURI(text)+"&source="+fromLang+"&target="+toLang
+    let xhr = new XMLHttpRequest()
+    xhr.open('POST', [URL], false)
+    xhr.send();
+    if (xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText); 
+        const output = res["data"]["translations"][0]["translatedText"]
+        //alert(res["data"]["translations"][0]["translatedText"])
+        return output
+    }else{
+      return ""
+    }
+  };
   
   // NftUploader.jsx
   const imageToNFT = async (e) => {
     e.preventDefault()
+    
     const client = new Web3Storage({ token: API_KEY })
     const title = e.target.title.value
     const description = e.target.description.value
     console.log("title:",title)
     console.log("description:",description)
     
+    //日本語のdescriptionを翻訳
+    const description_en = translate(description)
+    console.log("translate description")
+    if(description_en == ""){//翻訳APIでエラーの場合
+      console.log("EROOR: translate failure")
+      return 1
+    }
+
+    console.log("description:",description_en)
+
+    const jumon = "Beautiful girl with long turqoise hair, cute, intricate, highly detailed, digital painting, trending on artstation, concept art, smooth, sharp focus, illustration, unreal engine 5, 8 k, art by artgerm and greg rutkowski and alphonse mucha"
+
     //descriptionの文字列を入力として、SDで画像生成して結果を得る
-    const response = await fetch('https://flasktest-gold.vercel.app/stableDiffusion/' + description)
+    const response = await fetch('https://flasktest-gold.vercel.app/stableDiffusion/' + jumon + description_en  ) //癒しの画像生成のためwordを追加
     const myBlob = await response.blob()
     //blobに属性追加
     myBlob.name = 'image.jpeg';
@@ -201,13 +234,7 @@ const NftUploader = () => {
       <div className="title">
         <h2>NFT Minter</h2>
       </div>
-      {/*<div className="nftUplodeBox">
-        <div className="imageLogoAndText">
-          <img src={ImageLogo} alt="imagelogo" />
-          <p>ここにドラッグ＆ドロップしてね</p>
-        </div> 
-        <input className="nftUploadInput" multiple name="imageURL" type="file" accept=".jpg , .jpeg , .png"  onChange={imageToNFT}/>
-      </div>*/}
+  
       <form onSubmit = {imageToNFT}>
         <p>Title</p>
         <input type="text" name="title"></input>
@@ -218,7 +245,6 @@ const NftUploader = () => {
         <p>Mint!</p>
         <input type="submit"/>
       </form>
-
     </div>
   );
 };
