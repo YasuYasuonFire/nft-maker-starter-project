@@ -136,6 +136,8 @@ const NftUploader = () => {
     
     //日本語のdescriptionを翻訳
     const description_en = translate(description)
+    //for test on localhost
+    //const description_en = "test"
     console.log("translate description")
     if(description_en == ""){//翻訳APIでエラーの場合
       console.log("EROOR: translate failure")
@@ -177,6 +179,10 @@ const NftUploader = () => {
     console.log("description: ",description)
     console.log("imageURI: ",imageURI)
 
+    //メタデータのPropertyの占いを乱数で値を決定
+    const val1 = Math.floor(Math.random() * 5) + 1
+    const val2 = Math.floor(Math.random() * 5) + 1
+    const val3 = Math.floor(Math.random() * 5) + 1
 
     //メタデータとなるjsonファイルを作成し、IPFSへアップロードする
     let metadata = {
@@ -185,12 +191,16 @@ const NftUploader = () => {
       "image":imageURI,
       "attributes": [
           {
-            "trait_type": "BACKGROUND",
-            "value": "Sankuzusi kurenai"
+            "trait_type": "LOVE",
+            "value": val1
           },
           {
-            "trait_type": "WING",
-            "value": "Scarlet macaw"
+            "trait_type": "MONEY",
+            "value": val2
+          },
+          {
+            "trait_type": "WORK",
+            "value": val3
           }
       ]
     }
