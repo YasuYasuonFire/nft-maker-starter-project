@@ -231,7 +231,7 @@ const NftUploader = () => {
 
     console.log("colabo description:",description)
     //日本語のdescriptionを翻訳
-    const description_en = translate(description)
+    let description_en = translate(description)
     //for test on localhost
     //const description_en = "test"
     console.log("translate description")
@@ -240,6 +240,8 @@ const NftUploader = () => {
       return 1
     }
 
+    //英文から「?」を削除（URLエラー対処)
+    description_en = description_en.replace('?','')
     console.log("English description:",description_en)
 
     const jumon = "Beautiful girl with long turqoise hair, cute, intricate, highly detailed, digital painting, trending on artstation, concept art, smooth, sharp focus, illustration, unreal engine 5, 8 k, art by artgerm and greg rutkowski and alphonse mucha"
