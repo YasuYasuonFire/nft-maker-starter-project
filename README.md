@@ -20,7 +20,16 @@
 4. 送信ボタンを押下します。しばらく待つとNFTがmintされます。画面下部のOpenSeaリンクより確認できます。
 
 ### Tech Stacks
+AIによる画像生成と、NFTのmintをワンクリックで行えるよう、フロントエンド、画像生成API、スマートコントラクトの処理をシームレスに接続しました。
+2ユーザーの入力によるコラボレーションは、入力文を結合し、日本語⇒英語に翻訳した後、
+AI画像生成APIに渡す方法で生成しています。
++ フロントエンド：React, Google翻訳API, OpenSea API
++ バックエンド(サーバ): Stable Diffusion API(DreamStudio), flask(Python)
++ バックエンド(blockchain): Solidity
+
+
+
 ### 使用したGithubリポジトリ
 + <a href=https://github.com/YasuYasuonFire/nft-maker-starter-project>フロントエンド(React)</a>
-+ <a href=https://github.com/YasuYasuonFire/nft-maker-contract>スマートコントラクト(solidity)</a>
 + <a href=https://github.com/YasuYasuonFire/flaskTest>Stable DiffusionのAI画像生成API呼び出し(Python)</a>
++ <a href=https://github.com/YasuYasuonFire/nft-maker-contract>スマートコントラクト(solidity)</a>
