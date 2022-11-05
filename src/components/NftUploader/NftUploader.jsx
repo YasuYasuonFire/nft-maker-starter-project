@@ -7,7 +7,7 @@ import "./NftUploader.css";
 import Web3Mint from "../../utils/Web3Mint.json";
 import { Web3Storage } from 'web3.storage';
 import Loadingindicator from "./../LoadingIndicator/LoadingIndicator"; 
-const CONTRACT_ADDRESS = "0x1c0bfaef717c97281e38b6988465b4c83bc225b2";
+const CONTRACT_ADDRESS = "0xB0b6C854FB4b04ca4EBFF06522Bc155753d25912";
 
 const API_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDMxZjlkYzFiMDk5YkZmMDE5NjIwM2NmNzJiNzAwNzllY0ZDOWNCMGMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjY0OTU2ODk1MjQsIm5hbWUiOiJ0ZXN0In0.pzP-JzijNa2HEb_lFy1uPn_Fi64Frdips-kGjFlhzfY";
 
@@ -19,6 +19,7 @@ const NftUploader = () => {
   const [loading, setLoading] = useState(false); //待機状態の切り替え用
   const [latestDescription, setLatestDescription] = useState(""); //直近mintされたNFTのdescriptionを格納
   const [latestOwner, setlatestOwner] = useState(""); //直近mintされたNFTのownerを格納
+  const [latestID, setLatestID] = useState(""); //直近mintされたNFTのidを格納
 
   /*この段階でcurrentAccountの中身は空*/
   console.log("currentAccount: ", currentAccount);
@@ -91,7 +92,7 @@ const NftUploader = () => {
           signer
         );
         console.log("Going to pop wallet now to pay gas...");
-        let nftTxn = await connectedContract.mintIpfsNFT(ipfs);
+        let nftTxn = await connectedContract.mintIpfsNFT(ipfs,latestOwner);
         console.log("Minting...please wait.");
         await nftTxn.wait();
         console.log(
@@ -106,6 +107,7 @@ const NftUploader = () => {
     }
     //loadingフラグをオフにする
     setLoading(false);
+    window.location.reload(true);
   };
 
   const renderNotConnectedContainer = () => (
@@ -120,7 +122,23 @@ const NftUploader = () => {
       <p>Mint "En" NFT with {latestOwner}</p>
       <p>{latestDescription.split('+++\n')[1]}</p>
     </div>
-);
+  );
+
+  //mintしたNFTのopenseaリンクを生成
+  const mintNFTlink = () => {
+    const LINK = "https://testnets.opensea.io/assets/goerli/" + CONTRACT_ADDRESS + '/' + latestID
+    return LINK
+  };
+
+  //mintしたNFTのopenseaリンクの表示用
+  const renderOpenseaLink = () => (
+    <a
+    href={mintNFTlink()}
+    target="_blank"
+    rel="noreferrer"
+  >See Your NFT on opensea</a>
+  );
+
 
   //コラボ対象NFTのdescription,Ownerを取得し更新
   const getLatestInfo = async() => {
@@ -173,6 +191,7 @@ const NftUploader = () => {
         );
         let latestID = await connectedContract.getLatestId();
         //console.log("latestID: " + latestID);  
+        setLatestID(latestID)
         return latestID;
 
       } else {
@@ -183,6 +202,8 @@ const NftUploader = () => {
     }
    
   };
+
+
 
   const translate = (description) => {
     const text = description
@@ -235,7 +256,7 @@ const NftUploader = () => {
     
     //for test on localhost
     //let description_en = "test??"
-    //description = e.target.description.value
+  
     
     
     console.log("translate description")
@@ -366,7 +387,10 @@ const NftUploader = () => {
           <p>Mint!</p>
           <input type="submit"/>
         </form>
+        <br></br>
+        {renderOpenseaLink()}
           </>
+          
     ) : (
     <>
       <Loadingindicator/>
