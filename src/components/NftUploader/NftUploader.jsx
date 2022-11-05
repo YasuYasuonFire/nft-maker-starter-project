@@ -233,7 +233,7 @@ const NftUploader = () => {
     //日本語のdescriptionを翻訳
     let description_en = translate(description)
     //for test on localhost
-    //const description_en = "test"
+    //let description_en = "test??"
     console.log("translate description")
     if(description_en === ""){//翻訳APIでエラーの場合
       console.log("EROOR: translate failure")
@@ -241,7 +241,7 @@ const NftUploader = () => {
     }
 
     //英文から「?」を削除（URLエラー対処)
-    description_en = description_en.replace('?','')
+    description_en = description_en.replace(/\?/g,'')
     console.log("English description:",description_en)
 
     const jumon = "Beautiful girl with long turqoise hair, cute, intricate, highly detailed, digital painting, trending on artstation, concept art, smooth, sharp focus, illustration, unreal engine 5, 8 k, art by artgerm and greg rutkowski and alphonse mucha"
