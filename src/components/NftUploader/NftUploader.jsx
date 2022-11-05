@@ -53,7 +53,7 @@ const NftUploader = () => {
     } else {
       console.log("No authorized account found");
     }
-    getLatestInfo() //直近mintされたNFTの情報を更新
+    
   };
   
   const connectWallet = async () =>{
@@ -120,7 +120,8 @@ const NftUploader = () => {
   const rendercollaboinfo = () => (
     <div>
       <p>Mint "En" NFT with {latestOwner}</p>
-      <p>{latestDescription.split('+++\n')[1]}</p>
+      <p>{latestDescription ?
+        latestDescription.split('+++\n')[1] : ""}</p>
     </div>
   );
 
@@ -269,8 +270,8 @@ const NftUploader = () => {
     description_en = description_en.replace(/\?/g,'')
     console.log("English description:",description_en)
 
-    const jumon = "Beautiful girl with long turqoise hair, cute, intricate, highly detailed, digital painting, trending on artstation, concept art, smooth, sharp focus, illustration, unreal engine 5, 8 k, art by artgerm and greg rutkowski and alphonse mucha"
-
+    //const jumon = "Beautiful girl with long turqoise hair, cute, intricate, highly detailed, digital painting, trending on artstation, concept art, smooth, sharp focus, illustration, unreal engine 5, 8 k, art by artgerm and greg rutkowski and alphonse mucha"
+    const jumon = ""
     //descriptionの文字列を入力として、SDで画像生成して結果を得る
     const response = await fetch('https://flasktest-gold.vercel.app/stableDiffusion/' + jumon + description_en  ) //癒しの画像生成のためwordを追加
     const myBlob = await response.blob()
@@ -363,6 +364,7 @@ const NftUploader = () => {
    */
   useEffect(() => {
     checkIfWalletIsConnected();
+    getLatestInfo(); //直近mintされたNFTの情報を更新
   }, []);
   
   return (
