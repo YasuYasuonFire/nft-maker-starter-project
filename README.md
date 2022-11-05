@@ -19,3 +19,8 @@
 入力欄の上部にはコラボ相手のアドレス、想いが記載されていますので、呼応する形で書き連ねてもOKです。
 4. 送信ボタンを押下します。しばらく待つとNFTがmintされます。画面下部のOpenSeaリンクより確認できます。
 
+### Tech Stacks
+### 使用したGithubリポジトリ
++ <a href=https://github.com/YasuYasuonFire/nft-maker-starter-project>フロントエンド(React)</a>
++ <a href=https://github.com/YasuYasuonFire/nft-maker-contract>スマートコントラクト(solidity)</a>
++ <a href=https://github.com/YasuYasuonFire/flaskTest>Stable DiffusionのAI画像生成API呼び出し(Python)</a>
