@@ -7,7 +7,7 @@ import "./NftUploader.css";
 import Web3Mint from "../../utils/Web3Mint.json";
 import { Web3Storage } from 'web3.storage';
 import Loadingindicator from "./../LoadingIndicator/LoadingIndicator"; 
-
+const CONTRACT_ADDRESS = "0x1c0bfaef717c97281e38b6988465b4c83bc225b2";
 
 const API_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDMxZjlkYzFiMDk5YkZmMDE5NjIwM2NmNzJiNzAwNzllY0ZDOWNCMGMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjY0OTU2ODk1MjQsIm5hbWUiOiJ0ZXN0In0.pzP-JzijNa2HEb_lFy1uPn_Fi64Frdips-kGjFlhzfY";
 
@@ -16,7 +16,9 @@ const NftUploader = () => {
    * ユーザーのウォレットアドレスを格納するために使用する状態変数を定義します。
    */
   const [currentAccount, setCurrentAccount] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); //待機状態の切り替え用
+  const [latestDescription, setLatestDescription] = useState(""); //直近mintされたNFTのdescriptionを格納
+  const [latestOwner, setlatestOwner] = useState(""); //直近mintされたNFTのownerを格納
 
   /*この段階でcurrentAccountの中身は空*/
   console.log("currentAccount: ", currentAccount);
@@ -38,9 +40,9 @@ const NftUploader = () => {
     let chainId = await ethereum.request({ method: "eth_chainId" });
     console.log("Connected to chain " + chainId);
     // 0x5 は　Goerli の ID です。
-    const MumbaiChainId = "0x13881";
-    if (chainId !== MumbaiChainId) {
-      alert("Please change to Mumbai Test Network!");
+    const GoerliChainId = "0x5";
+    if (chainId !== GoerliChainId) {
+      alert("Please change to Goerli Test Network!");
     }
 
     if (accounts.length !== 0) {
@@ -50,6 +52,7 @@ const NftUploader = () => {
     } else {
       console.log("No authorized account found");
     }
+    getLatestInfo() //直近mintされたNFTの情報を更新
   };
   
   const connectWallet = async () =>{
@@ -76,8 +79,7 @@ const NftUploader = () => {
   };
   
   const askContractToMintNft = async (ipfs) => {
-    const CONTRACT_ADDRESS =
-      "0x05497AB6cA031E09ebE9187619cdBDB25E0E4eB6";
+    
     try {
       const { ethereum } = window;
       if (ethereum) {
@@ -93,8 +95,8 @@ const NftUploader = () => {
         console.log("Minting...please wait.");
         await nftTxn.wait();
         console.log(
-          //`Minted!!, see transaction: https://goerli.etherscan.io/tx/${nftTxn.hash}`
-          `Minted!!, see transaction: https://mumbai.polygonscan.com/tx/${nftTxn.hash}`
+          `Minted!!, see transaction: https://goerli.etherscan.io/tx/${nftTxn.hash}`
+          //`Minted!!, see transaction: https://mumbai.polygonscan.com/tx/${nftTxn.hash}`
         );
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -111,6 +113,76 @@ const NftUploader = () => {
         Connect to Wallet
       </button>
   );
+
+  //コラボ相手情報の表示用
+  const rendercollaboinfo = () => (
+    <div>
+      <p>Mint "En" NFT with {latestOwner}</p>
+      <p>{latestDescription.split('/\n')[1]}</p>
+    </div>
+);
+
+  //コラボ対象NFTのdescription,Ownerを取得し更新
+  const getLatestInfo = async() => {
+    const options = {method: 'GET'};
+    const latestID = await getLatestID();
+    
+    console.log('latestID: ' + latestID)
+    console.log('GetLatest NFT description...')
+
+    const response = await fetch('https://testnets-api.opensea.io/api/v1/assets?token_ids='+ latestID + '&asset_contract_address=' + CONTRACT_ADDRESS + '&order_direction=desc&offset=0&include_orders=false', options)
+    const data = await response.json();
+    setLatestDescription(data.assets[0].description)
+    console.log('latest description: ' + data.assets[0].description)
+
+  //コラボ対象NFTの所有者アドレスをスマートコントラクトから取得し更新
+    console.log('GetLatest NFT Owner...')
+      try {
+        const { ethereum } = window;
+        if (ethereum) {
+          const provider = new ethers.providers.Web3Provider(ethereum);
+          //const signer = provider.getSigner();
+          const connectedContract = new ethers.Contract(
+            CONTRACT_ADDRESS,
+            Web3Mint.abi,
+            provider
+          );
+          let latestOwner = await connectedContract.ownerOf(latestID);
+          setlatestOwner(latestOwner);
+          console.log('latest Owner: ' + latestOwner)
+        } else {
+          console.log("Ethereum object doesn't exist!");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    
+  };
+
+  //コラボ対象のNFT(直近でmintされたNFT)のidを取得する
+  const getLatestID = async() => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        //const signer = provider.getSigner();
+        const connectedContract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          Web3Mint.abi,
+          provider
+        );
+        let latestID = await connectedContract.getLatestId();
+        //console.log("latestID: " + latestID);  
+        return latestID;
+
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+   
+  };
 
   const translate = (description) => {
     const text = description
@@ -149,10 +221,15 @@ const NftUploader = () => {
     const week = hiduke.getDate();
     const title = year + '/' + month + '/' + week
 
-    const description = e.target.description.value
+    let description = e.target.description.value
     console.log("title:",title)
-    console.log("description:",description)
+    console.log("your description:",description)
     
+    //コラボ相手のdescription部を取得
+    const colabdescription  = latestDescription.split('/\n')[1]
+    description = colabdescription + '\n/\n' + description //コラボ相手と自分のdescriptonを改行/改行で結合
+
+    console.log("colabo description:",description)
     //日本語のdescriptionを翻訳
     const description_en = translate(description)
     //for test on localhost
@@ -163,7 +240,7 @@ const NftUploader = () => {
       return 1
     }
 
-    console.log("description:",description_en)
+    console.log("English description:",description_en)
 
     const jumon = "Beautiful girl with long turqoise hair, cute, intricate, highly detailed, digital painting, trending on artstation, concept art, smooth, sharp focus, illustration, unreal engine 5, 8 k, art by artgerm and greg rutkowski and alphonse mucha"
 
@@ -268,15 +345,17 @@ const NftUploader = () => {
         {currentAccount === "" ? (
           renderNotConnectedContainer()
         ) : (
-          <p>you can mint "Your Emotion" NFT</p>
+          <p></p>
         )}
         <div className="title">
-          <h2>NFT Minter</h2>
+          <h2>Encounter NFT Generator</h2>
         </div>
-    
+        {rendercollaboinfo()}
+
         <form onSubmit = {imageToNFT}>
           <p>Write down your emotion.</p>
           <textarea type="text" name="description" cols='30' rows='10' placeholder="English OK 日本語もOK"></textarea>
+ 
 
           <p>Mint!</p>
           <input type="submit"/>
