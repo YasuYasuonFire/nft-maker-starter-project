@@ -232,9 +232,12 @@ const NftUploader = () => {
     console.log("colabo description:",description)
     //日本語のdescriptionを翻訳
     let description_en = translate(description)
+    
     //for test on localhost
     //let description_en = "test??"
-    description = e.target.description.value
+    //description = e.target.description.value
+    
+    
     console.log("translate description")
     if(description_en === ""){//翻訳APIでエラーの場合
       console.log("EROOR: translate failure")
