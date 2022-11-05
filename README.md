@@ -6,10 +6,10 @@
 不意にどこかの誰か、あるいはセレブとコラボして、同じルーツのNFTを持つことは、どんどんパーソナライズ化されていくこの世界のなかでとても「エモい」ことではないでしょうか。<br>今後、私たちはこのプロダクト通じて、作成されるNFTをキーにしながら、新たな出会いの形態としてのweb3的ソーシャルツールの追求を目指します。
 
 ### プロダクトURL
-<a href=https://nft-maker-starter-project-mu.vercel.app/>https://nft-maker-starter-project-mu.vercel.app/</a>
+<a href=https://nft-maker-starter-project-mu.vercel.app/ target="_blank">https://nft-maker-starter-project-mu.vercel.app/</a>
 
 + 使用したブロックチェーン：Goerli
-+ コントラクトアドレス：<a href=https://goerli.etherscan.io/address/0xb0b6c854fb4b04ca4ebff06522bc155753d25912>0xb0b6c854fb4b04ca4ebff06522bc155753d25912</a>
++ コントラクトアドレス：<a href=https://goerli.etherscan.io/address/0xb0b6c854fb4b04ca4ebff06522bc155753d25912 target="_blank">0xb0b6c854fb4b04ca4ebff06522bc155753d25912</a>
 
 
 #### テスト手順
@@ -30,6 +30,6 @@ AI画像生成APIに渡す方法で生成しています。
 
 
 ### 使用したGithubリポジトリ
-+ <a href=https://github.com/YasuYasuonFire/nft-maker-starter-project>フロントエンド(React)</a>
-+ <a href=https://github.com/YasuYasuonFire/flaskTest>Stable DiffusionのAI画像生成API呼び出し(Python)</a>
-+ <a href=https://github.com/YasuYasuonFire/nft-maker-contract>スマートコントラクト(solidity)</a>
++ <a href=https://github.com/YasuYasuonFire/nft-maker-starter-project target="_blank">フロントエンド(React)</a>
++ <a href=https://github.com/YasuYasuonFire/flaskTest target="_blank">Stable DiffusionのAI画像生成API呼び出し(Python)</a>
++ <a href=https://github.com/YasuYasuonFire/nft-maker-contract target="_blank">スマートコントラクト(solidity)</a>
